@@ -2,18 +2,19 @@
 * image2D - 🍇 使用ECMAScript绘制二维图片。Drawing Two-Dimensional Pictures Using ECMAScript.
 * git+https://github.com/yelloxing/image2D.git
 *
-* [DOC] https://yelloxing.gitee.io/image2d/index.html 
+* For online documents, please visit
+* https://yelloxing.gitee.io/image2d/index.html
 *
-* author 心叶(yelloxing@gmail.com)
+* author yelloxing
 *
-* version 1.8.13
+* version 1.9.1-beta.0
 *
 * build Thu Apr 11 2019
 *
 * Copyright yelloxing
 * Released under the MIT license
 *
-* Date:Wed Sep 09 2020 11:55:21 GMT+0800 (GMT+08:00)
+* Date:Mon Sep 14 2020 11:39:24 GMT+0800 (GMT+08:00)
 */
 
 'use strict';
@@ -2033,8 +2034,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     // beginA起点弧度，rotateA旋转弧度式
     function arc(beginA, rotateA, cx, cy, r1, r2, doback) {
 
-        if (rotateA > Math.PI * 2) rotateA = Math.PI * 2;
-        if (rotateA < -Math.PI * 2) rotateA = -Math.PI * 2;
+        // 有了前置的判断，这里可以省略了
+        // if (rotateA > Math.PI * 2) rotateA = Math.PI * 2;
+        // if (rotateA < -Math.PI * 2) rotateA = -Math.PI * 2;
 
         // 保证逆时针也是可以的
         if (rotateA < 0) {
@@ -2066,6 +2068,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
     // 文字统一设置方法
     var initText = function initText(painter, config, x, y, deg) {
+
+        deg = deg % (Math.PI * 2);
+
         painter.beginPath();
         painter.translate(x, y);
         painter.rotate(deg);
@@ -2076,9 +2081,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     // 画弧统一设置方法
     var initArc = function initArc(painter, config, cx, cy, r1, r2, beginDeg, deg) {
 
+        if (r1 > r2) {
+            var temp = r1;
+            r1 = r2;
+            r2 = temp;
+        }
+
+        beginDeg = beginDeg % (Math.PI * 2);
+
         // 当|deg|>=2π的时候都认为是一个圆环
         if (deg >= Math.PI * 2 || deg <= -Math.PI * 2) {
             deg = Math.PI * 2;
+        } else {
+            deg = deg % (Math.PI * 2);
         }
 
         arc(beginDeg, deg, cx, cy, r1, r2, function (beginA, endA, begInnerX, begInnerY, begOuterX, begOuterY, endInnerX, endInnerY, endOuterX, endOuterY, r) {
@@ -2444,6 +2459,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     var initText$1 = function initText$1(painter, config, x, y, deg) {
         if (!painter || painter.length <= 0 || painter[0].nodeName.toLowerCase() !== 'text') throw new Error('Need a <text> !');
 
+        deg = deg % (Math.PI * 2);
+
         // 垂直对齐采用dy实现
         painter.attr('dy', {
             "top": config['font-size'] * 0.5,
@@ -2468,12 +2485,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     // 画弧统一设置方法
     var initArc$1 = function initArc$1(painter, config, cx, cy, r1, r2, beginDeg, deg) {
 
+        if (!painter || painter.length <= 0 || painter[0].nodeName.toLowerCase() !== 'path') throw new Error('Need a <path> !');
+
+        beginDeg = beginDeg % (Math.PI * 2);
+
+        if (r1 > r2) {
+            var temp = r1;
+            r1 = r2;
+            r2 = temp;
+        }
+
         // 当|deg|>=2π的时候都认为是一个圆环
         if (deg >= Math.PI * 1.999999 || deg <= -Math.PI * 1.999999) {
             deg = Math.PI * 1.999999;
+        } else {
+            deg = deg % (Math.PI * 2);
         }
 
-        if (!painter || painter.length <= 0 || painter[0].nodeName.toLowerCase() !== 'path') throw new Error('Need a <path> !');
         arc(beginDeg, deg, cx, cy, r1, r2, function (beginA, endA, begInnerX, begInnerY, begOuterX, begOuterY, endInnerX, endInnerY, endOuterX, endOuterY, r) {
             var f = endA - beginA > Math.PI ? 1 : 0,
                 d = "M" + begInnerX + " " + begInnerY;
